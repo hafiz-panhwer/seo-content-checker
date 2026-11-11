@@ -81,7 +81,7 @@ function basicGrammar(blocks) {
     const r5 = /\ban\s+([bcdfgjklmnpqrstvwxz]\w+)/gi; while ((m = r5.exec(t))) if (!/^(hour|honest|honor|honour|heir|herb|mba|seo|fbi|mri|nfl|nba|llm|sms|mp3|x-ray|faq)/i.test(m[1])) G.push({ type: 'grammar', msg: `"${m[0]}": use "a" before a consonant sound`, at: snip(t, m.index, m[0].length) });
     const r6 = /\ba\s+([aeio]\w+)/gi; while ((m = r6.exec(t))) if (!/^(one|once|eu|uni|use|usu|euro)/i.test(m[1])) G.push({ type: 'grammar', msg: `"${m[0]}": use "an ${m[1]}"`, at: snip(t, m.index, m[0].length) });
     const r7 = /\b[A-Za-z]+\b/g; while ((m = r7.exec(t))) { const lw = m[0].toLowerCase(); if (TYPO[lw]) G.push({ type: 'spelling', msg: `"${m[0]}" → "${TYPO[lw]}"`, at: snip(t, m.index, m[0].length) }); }
-    if (b.type === 'p' && !b.list && !b.table) sentences(t).forEach(s => { if (/^[a-z]/.test(s) && !/^(e\.g|i\.e|iphone|ipad|ebay|www)/i.test(s)) G.push({ type: 'grammar', msg: 'Sentence starts with a lowercase letter', at: '"' + cut(s, 60) + '"' }); });
+    if (b.type === 'p' && !b.list && !b.table && words(t).length >= 4) sentences(t).forEach(s => { if (/^[a-z]/.test(s) && !/^(e\.g|i\.e|iphone|ipad|ebay|www)/i.test(s)) G.push({ type: 'grammar', msg: 'Sentence starts with a lowercase letter', at: '"' + cut(s, 60) + '"' }); });
   });
   return G;
 }
