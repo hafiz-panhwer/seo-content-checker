@@ -774,7 +774,7 @@ const CHECKS = [
     if (A.query) issues.push('Query parameters in URL');
     if (A.slugWords.length > 6) issues.push(`${A.slugWords.length} words in slug (3–5 is ideal)`);
     const sw = A.slugWords.filter(w => STOP.has(w)); if (sw.length) issues.push('Stop words: ' + sw.join(', '));
-    if (/(^|[-/])(19|20)\d\d([-/]|$)/.test(path)) issues.push('Year or date in URL dates the page');
+    if (/(^|[-_/])(19|20)\d\d([-_/.]|$)/.test(path)) issues.push('Year or date in URL dates the page');
     if (path.split('/').filter(Boolean).length > 4) issues.push('Deep folder structure');
     if (A.kwl && !A.kwStems.every(s => A.slugWords.map(stem).includes(s))) issues.push('Keyword not in slug');
     return R(issues.length === 0 ? 'pass' : issues.length <= 2 ? 'warn' : 'fail', cut(path, 70), '', issues);
