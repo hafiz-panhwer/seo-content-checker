@@ -2,374 +2,253 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SEO Content Checker</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Parix SEO Content Audit</title>
+<meta name="description" content="Free 100-point SEO content audit: plagiarism similarity, keywords, content quality, readability, meta tags, links, technical SEO, E-E-A-T and competitor gaps.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
-:root{--bg:#f5f6f8;--card:#fff;--text:#1a1d23;--muted:#5d6573;--line:#e2e5ea;--accent:#2b59c3;--good:#1f8a4c;--warn:#b7791f;--bad:#c53030;--info:#7a828f;--warnbg:#fdf3e1;--badbg:#fde8e8;--kw:#c9ecd0;--wd:#ffe0b8;--input:#fff;--link:#1a0dab}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121417;--card:#1b1e23;--text:#e7e9ec;--muted:#9aa3b0;--line:#2c3138;--accent:#7aa2ff;--good:#4cc27e;--warn:#e0a84a;--bad:#f07171;--info:#9aa3b0;--warnbg:#33290f;--badbg:#3a1a1a;--kw:#1e4a2a;--wd:#5a3a14;--input:#15171b;--link:#8ab4f8;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#121417;--card:#1b1e23;--text:#e7e9ec;--muted:#9aa3b0;--line:#2c3138;--accent:#7aa2ff;--good:#4cc27e;--warn:#e0a84a;--bad:#f07171;--info:#9aa3b0;--warnbg:#33290f;--badbg:#3a1a1a;--kw:#1e4a2a;--wd:#5a3a14;--input:#15171b;--link:#8ab4f8;color-scheme:dark}
+/* Layout: input rail on the left, audit report on the right; stacks on narrow screens */
+:root{
+  --bg:#f4f6fa;--surface:#ffffff;--surface-2:#eef1f7;--text:#141a26;--muted:#5a6476;--line:#dde2ec;
+  --accent:#3b4fd8;--accent-ink:#ffffff;--accent-soft:#e7eafe;
+  --pass:#16804a;--pass-soft:#e3f4ea;--warn:#a86a0c;--warn-soft:#fbf0dc;--fail:#c2362f;--fail-soft:#fbe5e3;--na:#7a8394;--na-soft:#eceff4;
+  --kw:#cdeed6;--flag:#ffe1b8;
+  --font-display:"Space Grotesk","Segoe UI",system-ui,sans-serif;--font-body:Inter,"Segoe UI",system-ui,-apple-system,sans-serif;--font-mono:ui-monospace,Consolas,"Cascadia Mono",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f131b;--surface:#171c27;--surface-2:#1e2532;--text:#e6e9f0;--muted:#98a2b5;--line:#2a3242;
+  --accent:#8695ff;--accent-ink:#0f131b;--accent-soft:#232a4a;
+  --pass:#4cc583;--pass-soft:#16301f;--warn:#e3a94b;--warn-soft:#33270f;--fail:#f07a72;--fail-soft:#3a1a19;--na:#8d96a8;--na-soft:#222936;
+  --kw:#1d4a2b;--flag:#5a3d12;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f131b;--surface:#171c27;--surface-2:#1e2532;--text:#e6e9f0;--muted:#98a2b5;--line:#2a3242;
+  --accent:#8695ff;--accent-ink:#0f131b;--accent-soft:#232a4a;
+  --pass:#4cc583;--pass-soft:#16301f;--warn:#e3a94b;--warn-soft:#33270f;--fail:#f07a72;--fail-soft:#3a1a19;--na:#8d96a8;--na-soft:#222936;
+  --kw:#1d4a2b;--flag:#5a3d12;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 system-ui,"Segoe UI",Roboto,Arial,sans-serif}
-header{padding:18px max(16px,env(safe-area-inset-right,0px)) 6px max(16px,env(safe-area-inset-left,0px))}header h1{margin:0;font-size:22px}header p{margin:4px 0 0;color:var(--muted);font-size:14px}
-.wrap{display:grid;grid-template-columns:minmax(300px,430px) 1fr;gap:16px;padding:12px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
-@media(max-width:980px){.wrap{grid-template-columns:1fr}}
-@media(max-width:480px){.wrap{grid-template-columns:minmax(0,1fr)}.tab{padding:6px 7px;font-size:13px}.bar{grid-template-columns:90px 1fr 32px}table{display:block;overflow-x:auto}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;min-width:0}
-label{display:block;font-weight:600;font-size:13px;margin:12px 0 4px}label small{font-weight:400;color:var(--muted)}
-input,textarea{width:100%;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font:inherit}
-textarea{resize:vertical}#content{min-height:320px;font-size:14px}
-.cnt{font-size:12px;color:var(--muted);text-align:right;margin-top:2px}
-.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-button{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:9px 14px;font:inherit;font-weight:600;cursor:pointer}
-button.sec{background:transparent;color:var(--accent);border:1px solid var(--line)}
-.tabs{display:flex;gap:2px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:14px}
-.tab{background:none;color:var(--muted);border-radius:6px 6px 0 0;padding:8px 10px;font-size:14px}
-.tab.on{color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
-.tab i{font-style:normal;display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;border-radius:9px;background:var(--badbg);color:var(--bad);font-size:11px}
-.chk{display:flex;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:6px;border:1px solid var(--line)}
-.chk .dot{flex:0 0 10px;height:10px;border-radius:50%;margin-top:6px}
-.good .dot{background:var(--good)}.warn .dot{background:var(--warn)}.bad .dot{background:var(--bad)}.info .dot{background:var(--info)}
-.chk.bad{background:var(--badbg)}.chk.warn{background:var(--warnbg)}
-.chk .d{color:var(--muted);font-size:13px}
-.score{display:flex;gap:24px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.big{font-size:46px;font-weight:800;line-height:1}.big small{font-size:16px;color:var(--muted)}
-.bars{flex:1;min-width:230px}
-.bar{display:grid;grid-template-columns:110px 1fr 36px;gap:8px;align-items:center;font-size:13px;margin:5px 0}
-.bar .t{height:8px;background:var(--line);border-radius:4px;overflow:hidden}.bar .f{height:100%;border-radius:4px}
-.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0}
-.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px}.stat b{display:block;font-size:19px}.stat span{font-size:12px;color:var(--muted)}
-h3{margin:18px 0 8px;font-size:16px}
-.serp{border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Arial,sans-serif;max-width:640px}
-.serp .u{font-size:13px;color:var(--muted)}.serp .ti{font-size:20px;color:var(--link);margin:4px 0}.serp .de{font-size:14px;color:var(--muted)}
-.pill{display:inline-block;padding:2px 10px;border-radius:12px;font-weight:700;font-size:13px;color:#fff;margin-left:6px}
-table{border-collapse:collapse;width:100%;font-size:13px}td,th{border-bottom:1px solid var(--line);padding:6px;text-align:left}
-.hl p{margin:0 0 10px}.hl .hd{font-weight:700;margin:14px 0 6px}
-mark.kw{background:var(--kw);color:inherit}mark.wd{background:var(--wd);color:inherit}
-.long{text-decoration:underline wavy var(--warn);text-underline-offset:3px}.pass{border-bottom:2px dotted #8b5cf6}
-.legend{font-size:12px;margin-bottom:10px}.legend span{margin-right:14px}
-.links a{display:block;margin:7px 0;color:var(--accent);word-break:break-word;font-size:14px}
-.muted{color:var(--muted);font-size:13px}.empty{color:var(--muted);padding:40px 0;text-align:center}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.55 var(--font-body)}
+a{color:var(--accent)}
+h1,h2,h3{font-family:var(--font-display);text-wrap:balance;margin:0}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:16px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.brand h1{font-size:21px}
+.brand span{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:18px;padding:18px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));align-items:start}
+@media(max-width:1000px){.grid{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.rail{display:flex;flex-direction:column;gap:12px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--surface-2);border-radius:9px;padding:3px;gap:3px}
+.seg button{background:transparent;color:var(--muted);border:0;border-radius:7px;padding:8px;font:600 14px var(--font-body);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--text);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.field{display:flex;flex-direction:column;gap:4px}
+.field label{font-weight:600;font-size:13px}
+.field small,.hint{color:var(--muted);font-size:12px;font-weight:400}
+input[type=text],input[type=url],input[type=number],input[type=password],textarea{width:100%;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:14px var(--font-body)}
+textarea{resize:vertical}
+input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#content{min-height:260px}
+.row2{display:grid;grid-template-columns:1fr 110px;gap:10px}
+.counter{font-size:12px;color:var(--muted);text-align:right}
+details.box{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+details.box>summary{cursor:pointer;font-weight:600;font-size:14px}
+details.box[open]>summary{margin-bottom:10px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px}
+.check input{margin-top:3px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:10px 16px;font:600 15px var(--font-body);cursor:pointer}
+.btn[disabled]{opacity:.6;cursor:progress}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+.btn.small{padding:6px 11px;font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.progress{display:flex;flex-direction:column;gap:4px;font-size:13px}
+.progress div{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.progress .done{color:var(--pass)}.progress .err{color:var(--fail)}.progress .run{color:var(--text)}
+.views{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:16px}
+.views button{background:none;border:0;color:var(--muted);font:600 14px var(--font-body);padding:9px 12px;cursor:pointer;border-radius:8px 8px 0 0}
+.views button[aria-selected="true"]{color:var(--accent);box-shadow:inset 0 -2px 0 var(--accent)}
+.empty{padding:30px 6px;color:var(--muted)}
+.empty h2{color:var(--text);font-size:20px;margin-bottom:8px}
+.empty ol{padding-left:20px}
+.hero{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center}
+@media(max-width:560px){.hero{grid-template-columns:minmax(0,1fr);justify-items:start}}
+.ring{position:relative;width:150px;height:150px}
+.ring svg{width:150px;height:150px;transform:rotate(-90deg)}
+.ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .num b{font:700 42px/1 var(--font-display);font-variant-numeric:tabular-nums}
+.ring .num span{font-size:12px;color:var(--muted)}
+.verdict{font:700 22px var(--font-display);margin-bottom:4px}
+.note{color:var(--muted);font-size:13px;max-width:68ch}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.chip{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--surface-2);color:var(--muted);font-variant-numeric:tabular-nums}
+.chip b{color:var(--text)}
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-top:18px}
+.cat{border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--surface);cursor:pointer;text-align:left;font:inherit;color:inherit}
+.cat:hover{border-color:var(--accent)}
+.cat .t{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:600;font-size:14px}
+.cat .t b{font:700 20px var(--font-display);font-variant-numeric:tabular-nums}
+.meter{height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin:8px 0 6px}
+.meter i{display:block;height:100%;border-radius:3px}
+.cat .c{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.sec{margin-top:26px}
+.sec>h2{font-size:17px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.filters button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:999px;padding:4px 12px;font:600 13px var(--font-body);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.issue{border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:10px 12px;margin-bottom:8px;background:var(--surface)}
+.issue.fail{border-left-color:var(--fail)}.issue.warn{border-left-color:var(--warn)}.issue.opt{border-left-color:var(--na)}
+.issue .h{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.issue .h b{font-size:14px}
+.issue .h .id{font:12px var(--font-mono);color:var(--muted)}
+.d{font-size:13px;color:var(--muted);margin-top:4px}
+.d b{color:var(--text)}
+.loc{margin:6px 0 0;padding:0;list-style:none;font-size:13px}
+.loc li{padding:4px 8px;margin-top:3px;background:var(--surface-2);border-radius:6px;word-break:break-word}
+.fix{margin-top:6px;font-size:13px}
+.fix .ex{display:block;margin-top:4px;padding:6px 8px;border-radius:6px;background:var(--accent-soft);font-size:13px}
+.pill{display:inline-block;font:600 11px var(--font-body);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.pill.pass{background:var(--pass-soft);color:var(--pass)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.fail{background:var(--fail-soft);color:var(--fail)}.pill.na{background:var(--na-soft);color:var(--na)}
+.meth{font:600 11px var(--font-body);padding:1px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
+.group{margin-bottom:22px}
+.group>h3{font-size:16px;display:flex;justify-content:space-between;gap:10px;align-items:baseline;margin-bottom:8px}
+.group>h3 span{font:600 14px var(--font-body);color:var(--muted);font-variant-numeric:tabular-nums}
+details.row{border:1px solid var(--line);border-radius:8px;margin-bottom:6px;background:var(--surface)}
+details.row>summary{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:8px 10px;cursor:pointer;list-style:none}
+details.row>summary::-webkit-details-marker{display:none}
+details.row>summary .n{font:12px var(--font-mono);color:var(--muted)}
+details.row>summary .nm{font-weight:600;font-size:14px;min-width:0}
+details.row>summary .nm small{display:block;font-weight:400;color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+details.row .body{padding:0 12px 12px 52px}
+@media(max-width:560px){details.row>summary{grid-template-columns:28px minmax(0,1fr) auto}details.row>summary .meth{display:none}details.row .body{padding-left:12px}}
+.serp{border:1px solid var(--line);border-radius:10px;padding:14px;font-family:Arial,sans-serif;max-width:640px;background:var(--surface)}
+.serp .u{font-size:13px;color:var(--muted);word-break:break-all}
+.serp .ti{font-size:20px;color:var(--accent);margin:4px 0;line-height:1.3}
+.serp .de{font-size:14px;color:var(--muted)}
+.ba{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ba div{border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px}
+.ba b{font:700 18px var(--font-display);font-variant-numeric:tabular-nums}
+.up{color:var(--pass)}.down{color:var(--fail)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+th{font-weight:600;color:var(--muted);font-size:12px;letter-spacing:.03em;text-transform:uppercase}
+.article{max-width:75ch}
+.article p{margin:0 0 10px}
+.article .hd{font-weight:700;font-family:var(--font-display);margin:16px 0 6px}
+mark.kw{background:var(--kw);color:inherit;border-radius:3px}
+mark.fl{background:var(--flag);color:inherit;border-radius:3px}
+.long{text-decoration:underline wavy var(--warn);text-underline-offset:3px}
+.pass-v{border-bottom:2px dotted var(--accent)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;margin-bottom:12px}
+.disclaimer{margin-top:28px;padding:12px 14px;border-radius:10px;background:var(--surface-2);font-size:13px;color:var(--muted)}
+.printonly{display:none}
+@media print{
+  body{background:#fff;color:#000}
+  .top,.rail,.views,.noprint,.filters{display:none!important}
+  .grid{display:block;padding:0}
+  .panel{border:0;padding:0}
+  .printonly{display:block}
+  .screenonly{display:none!important}
+  details.row{break-inside:avoid}
+  details.row .body{display:block!important}
+  .view{display:block!important}
+  #view-highlights,#view-competitors{display:none!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header><h1>SEO Content Checker</h1><p>Checks your blog post's meta tags, keywords, readability, structure, duplicate text and grammar before you publish. Free. Your article stays in your browser unless you click "Run full grammar check", which sends it to LanguageTool.</p></header>
-<div class="wrap">
-<div class="card">
-<label>Focus keyword</label><input id="kw" placeholder="e.g. best running shoes">
-<label>Secondary keywords <small>(comma separated)</small></label><input id="kw2" placeholder="e.g. running shoes for men, cushioned shoes">
-<label>Meta title</label><input id="title" placeholder="50–60 characters"><div class="cnt" id="tc"></div>
-<label>Meta description</label><textarea id="desc" rows="3" placeholder="120–160 characters"></textarea><div class="cnt" id="dc"></div>
-<label>URL slug <small>(or full URL)</small></label><input id="slug" placeholder="best-running-shoes">
-<label>Your domain <small>(to count internal links)</small></label><input id="domain" placeholder="example.com">
-<label>Article <small>(paste from Google Docs, Word or WordPress. Headings and links are kept.)</small></label>
-<textarea id="content" placeholder="Paste your article here..."></textarea><div class="cnt" id="cc"></div>
-<div class="row"><button id="go">Check content</button><button class="sec" id="clear">Clear all</button></div>
+<div class="top">
+  <div class="brand"><h1>Parix SEO Content Audit</h1><span>100 checks · free · runs in your browser</span></div>
+  <div class="actions"><button class="btn ghost small" id="sampleBtn" type="button">Load sample article</button></div>
 </div>
-<div class="card"><div class="tabs" id="tabs"></div><div id="out"><div class="empty">Paste your article and click <b>Check content</b>.</div></div></div>
+<div class="grid">
+  <aside class="panel rail" aria-label="Audit input">
+    <div class="seg" role="group" aria-label="What to audit">
+      <button type="button" id="modeText" aria-pressed="true">Paste content</button>
+      <button type="button" id="modeUrl" aria-pressed="false">Live URL</button>
+    </div>
+    <div class="field" id="urlField" hidden>
+      <label for="url">Page URL</label>
+      <input type="url" id="url" placeholder="https://example.com/blog/post/">
+      <small>Fetches the live page, robots.txt and sitemap through a free public reader (r.jina.ai).</small>
+    </div>
+    <div class="field">
+      <label for="kw">Primary keyword <small>(optional, recommended)</small></label>
+      <input type="text" id="kw" placeholder="e.g. ai seo tools">
+    </div>
+    <div class="row2">
+      <div class="field"><label for="kw2">Secondary keywords</label><input type="text" id="kw2" placeholder="comma separated"></div>
+      <div class="field"><label for="target">Word target</label><input type="number" id="target" min="100" step="100" value="1200"></div>
+    </div>
+    <div class="stack" id="textFields">
+      <div class="field"><label for="title">Meta title</label><input type="text" id="title" placeholder="50–60 characters"><div class="counter" id="titleCount"></div></div>
+      <div class="field"><label for="desc">Meta description</label><textarea id="desc" rows="3" placeholder="140–160 characters"></textarea><div class="counter" id="descCount"></div></div>
+      <div class="row2">
+        <div class="field"><label for="slug">URL slug</label><input type="text" id="slug" placeholder="ai-seo-tools"></div>
+        <div class="field"><label for="domain">Domain</label><input type="text" id="domain" placeholder="parix.ai"></div>
+      </div>
+      <div class="field">
+        <label for="content">Article <small>(paste from Google Docs, Word or WordPress; headings and links are kept)</small></label>
+        <textarea id="content" placeholder="Paste your article here..."></textarea>
+        <div class="counter" id="contentCount"></div>
+      </div>
+    </div>
+    <details class="box" id="compBox">
+      <summary>Compare against competitors <small class="hint">(unlocks 15+ checks)</small></summary>
+      <div class="stack">
+        <div class="field">
+          <label for="comps">Competitor or source URLs <small>(one per line, up to 5)</small></label>
+          <textarea id="comps" rows="4" placeholder="https://competitor.com/their-article/"></textarea>
+          <small>Paste the top Google results for your keyword. Used for plagiarism similarity, paraphrasing, content gaps, semantic keywords and competitor comparison. <a id="serpLink" href="https://www.google.com/" target="_blank" rel="noopener">Open Google results for your keyword</a></small>
+        </div>
+        <div class="field">
+          <label for="others">Your other pages <small>(titles or URLs, one per line)</small></label>
+          <textarea id="others" rows="3" placeholder="Best AI SEO Tools for 2026&#10;https://parix.ai/blog/seo-ai/"></textarea>
+          <small>Used for keyword cannibalization and title uniqueness. In URL mode your sitemap is used too.</small>
+        </div>
+      </div>
+    </details>
+    <details class="box">
+      <summary>Settings &amp; free API keys</summary>
+      <div class="stack">
+        <label class="check"><input type="checkbox" id="optGrammar" checked> <span>Full grammar and spelling check (LanguageTool, free). Sends the article text to LanguageTool.</span></label>
+        <label class="check"><input type="checkbox" id="optLinks" checked> <span>Check links for errors (up to 12 links, adds about 40 seconds)</span></label>
+        <label class="check"><input type="checkbox" id="optPsi" checked> <span>Speed and Core Web Vitals in URL mode (Google PageSpeed)</span></label>
+        <div class="field"><label for="psiKey">Google PageSpeed API key <small>(free, needed for speed checks)</small></label><input type="password" id="psiKey" autocomplete="off" placeholder="AIza..."><small>Create one free at <a href="https://developers.google.com/speed/docs/insights/v5/get-started" target="_blank" rel="noopener">developers.google.com/speed</a>. Stored only in this browser.</small></div>
+        <div class="field"><label for="jinaKey">Jina Reader key <small>(optional, makes URL checks faster)</small></label><input type="password" id="jinaKey" autocomplete="off" placeholder="jina_..."><small>Without a key the reader allows about 20 requests a minute, so URL audits pause between requests.</small></div>
+      </div>
+    </details>
+    <div class="actions"><button class="btn" id="runBtn" type="button">Run full audit</button><button class="btn ghost" id="clearBtn" type="button">Clear</button></div>
+    <div class="progress" id="progress" aria-live="polite"></div>
+  </aside>
+
+  <main class="panel" id="report">
+    <div class="views noprint" role="tablist" id="views">
+      <button role="tab" data-v="dashboard" aria-selected="true">Dashboard</button>
+      <button role="tab" data-v="checks" aria-selected="false">All 100 checks</button>
+      <button role="tab" data-v="highlights" aria-selected="false">Article highlights</button>
+      <button role="tab" data-v="competitors" aria-selected="false">Competitors</button>
+    </div>
+    <div id="out">
+      <div class="empty">
+        <h2>Audit a blog post before you publish it</h2>
+        <ol>
+          <li>Paste your article, or switch to <b>Live URL</b> to audit a published page.</li>
+          <li>Add your primary keyword and meta tags.</li>
+          <li>Optional: add the top Google results under <b>Compare against competitors</b> for plagiarism similarity and content gaps.</li>
+          <li>Click <b>Run full audit</b>. Each of the 100 checks shows Pass, Warning, Fail or Not available, with the exact location and a fix.</li>
+        </ol>
+        <p>Click <b>Load sample article</b> at the top to see a finished report.</p>
+      </div>
+    </div>
+  </main>
 </div>
-<script>
-"use strict";
-const $=id=>document.getElementById(id);
-const FIELDS=['kw','kw2','title','desc','slug','domain','content'];
-const h=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-const rx=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-const norm=s=>s.replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/ /g,' ');
-const ctx=document.createElement('canvas').getContext('2d');
-const px=(t,f)=>{ctx.font=f;return ctx.measureText(t).width};
-function fit(t,f,max){if(px(t,f)<=max)return t;let s=t;while(s&&px(s+' ...',f)>max)s=s.slice(0,-1);return s.trim()+' ...'}
-const TF='20px Arial',TMAX=580,DF='14px Arial',DMAX=920;
-
-const STOP=new Set('a an the and or but of to in on for with at by from is are was were be been it this that as your you we our i my me how what why can do does will not so if than then them they their its has have had into about more most also just all any some there these those which who when where very'.split(' '));
-const POWER=['best','top','ultimate','free','easy','proven','guide','complete','simple','quick','fast','new','essential','expert','step-by-step','how to','tips','ways','review','vs','checklist','mistakes','honest','tested','cheap','beginner','real','exact','why'];
-const CTA=['learn','discover','get','try','find','see','check','start','download','compare','read','shop','book','explore','join','save','buy','order','calculate','use'];
-/* Wordy phrases with plainer alternatives (shown as suggestions only) */
-const WORDY=[['in order to','to'],['due to the fact that','because'],['at this point in time','now'],['for the purpose of','to / for'],['in the event that','if'],['a large number of','many'],['a wide range of','many'],['a variety of','many'],['the majority of','most'],['with regard to','about'],['in spite of the fact that','although'],['it is important to note that','(cut it)'],["it's important to note that",'(cut it)'],['it is worth noting that','(cut it)'],["it's worth noting that",'(cut it)'],['needless to say','(cut it)'],['it goes without saying','(cut it)'],['at the end of the day','(cut it)'],['when it comes to','for / with'],['in today\'s fast-paced world','(cut it)'],['in today\'s digital age','(cut it)'],['utilize','use'],['utilizing','using'],['leverage','use'],['facilitate','help'],['commence','start'],['endeavor','try'],['in close proximity to','near'],['has the ability to','can'],['is able to','can'],['make a decision','decide'],['take into consideration','consider'],['plays a crucial role in','matters for'],['plays a vital role in','matters for'],['delve into','look at'],['dive into','look at'],['a plethora of','many'],['myriad','many'],['seamless','smooth'],['robust','strong'],['cutting-edge','new'],['state-of-the-art','modern'],['game-changer','big change'],['ever-evolving','changing'],['navigate the complexities','handle'],['unlock the potential','get more from'],['elevate','improve'],['very unique','unique'],['completely eliminate','eliminate'],['basically','(cut it)'],['actually','(often cut)'],['really','(often cut)']].sort((a,b)=>b[0].length-a[0].length);
-const TYPO={recieve:'receive',seperate:'separate',definately:'definitely',occured:'occurred',untill:'until',accomodate:'accommodate',acheive:'achieve',beleive:'believe',wich:'which',teh:'the',alot:'a lot',existance:'existence',goverment:'government',enviroment:'environment',begining:'beginning',buisness:'business',calender:'calendar',comming:'coming',concious:'conscious',embarassing:'embarrassing',foward:'forward',freind:'friend',grammer:'grammar',independant:'independent',knowlege:'knowledge',neccessary:'necessary',noticable:'noticeable',occassion:'occasion',persue:'pursue',posession:'possession',publically:'publicly',recomend:'recommend',refered:'referred',relevent:'relevant',sucess:'success',succesful:'successful',suprise:'surprise',tommorow:'tomorrow',truely:'truly',wierd:'weird',writting:'writing',adress:'address',arguement:'argument',basicly:'basically',completly:'completely',diffrent:'different',finaly:'finally',garantee:'guarantee',immediatly:'immediately',occurence:'occurrence',thier:'their',dont:"don't",doesnt:"doesn't",cant:"can't",wont:"won't",isnt:"isn't",didnt:"didn't"};
-const CONF=[[/\bcould of\b/gi,'could have'],[/\bshould of\b/gi,'should have'],[/\bwould of\b/gi,'would have'],[/\byour welcome\b/gi,"you're welcome"],[/\bthere is many\b/gi,'there are many'],[/\bless people\b/gi,'fewer people'],[/\bmore better\b/gi,'better'],[/\bmost best\b/gi,'best'],[/\bthen ever\b/gi,'than ever'],[/\bmore then\b/gi,'more than'],[/\bbetter then\b/gi,'better than']];
-const PASSIVE=/\b(am|is|are|was|were|be|been|being)\s+(\w+ly\s+)?(\w+ed|built|done|made|given|taken|written|seen|known|shown|found|told|sold|paid|held|kept|left|lost|sent|chosen|driven|forgotten|hidden|broken|spoken|bought|brought|caught|taught|thought|understood|drawn|grown)\b/i;
-
-/* ---------- convert pasted HTML to simple markdown ---------- */
-function htmlToMd(html){
-  const d=new DOMParser().parseFromString(html,'text/html');d.querySelectorAll('script,style,noscript').forEach(e=>e.remove());
-  const out=[],img=n=>'!['+(n.getAttribute('alt')||'')+']('+(n.getAttribute('src')||'image')+')';
-  const inline=el=>{let s='';el.childNodes.forEach(n=>{if(n.nodeType===3)s+=n.nodeValue;else if(n.nodeType===1){const t=n.tagName;
-    if(t==='A'&&n.getAttribute('href'))s+='['+inline(n).trim()+']('+n.getAttribute('href')+')';else if(t==='IMG')s+=img(n);else if(t==='BR')s+=' ';else s+=inline(n)}});return s.replace(/\s+/g,' ')};
-  const walk=el=>el.childNodes.forEach(n=>{
-    if(n.nodeType===3){if(n.nodeValue.trim())out.push(n.nodeValue.trim());return}
-    if(n.nodeType!==1)return;const t=n.tagName;
-    if(/^H[1-6]$/.test(t)){const s=inline(n).trim();if(s)out.push('#'.repeat(+t[1])+' '+s)}
-    else if(t==='LI'){const s=inline(n).trim();if(s)out.push('- '+s)}
-    else if(['P','BLOCKQUOTE','TD','TH','FIGCAPTION','DT','DD'].includes(t)){const s=inline(n).trim();if(s)out.push(s)}
-    else if(t==='IMG')out.push(img(n));else walk(n)});
-  walk(d.body);return out.join('\n\n');
-}
-$('content').addEventListener('paste',e=>{
-  const html=e.clipboardData&&e.clipboardData.getData('text/html');
-  if(html&&/<(h[1-6]|p|li|a)\b/i.test(html)){e.preventDefault();const ta=$('content');ta.setRangeText(htmlToMd(html),ta.selectionStart,ta.selectionEnd,'end');run()}
-});
-
-/* ---------- parse article ---------- */
-const stripMd=s=>norm(s).replace(/!\[[^\]]*\]\([^)]*\)/g,'').replace(/\[([^\]]*)\]\([^)]*\)/g,'$1').replace(/\*\*|__|`/g,'').replace(/^>\s*/,'').trim();
-function parse(raw){
-  if(/<\/?(p|h[1-6]|div|a|img|ul|li|br)\b/i.test(raw))raw=htmlToMd(raw);
-  raw=norm(raw);const blocks=[],images=[],links=[];let m;
-  const ri=/!\[([^\]]*)\]\(([^)\s]*)[^)]*\)/g;while((m=ri.exec(raw)))images.push({alt:m[1].trim(),src:m[2]});
-  const rl=/(^|[^!])\[([^\]]*)\]\(([^)\s]+)[^)]*\)/gm;while((m=rl.exec(raw)))links.push({text:m[2],href:m[3]});
-  let marked=false;
-  raw.split(/\r?\n/).forEach(line=>{const l=line.trim();if(!l)return;let x;
-    if((x=l.match(/^(#{1,6})\s+(.+)$/))){marked=true;blocks.push({type:'h',level:x[1].length,text:stripMd(x[2])});return}
-    if(/^!\[[^\]]*\]\([^)]*\)$/.test(l))return;
-    if((x=l.match(/^([-*+•]|\d+[.)])\s+(.+)$/))){const t=stripMd(x[2]);if(t)blocks.push({type:'p',text:t,list:true});return}
-    const t=stripMd(l);if(t)blocks.push({type:'p',text:t})});
-  let guessed=false;
-  if(!marked)blocks.forEach((b,i)=>{if(b.list||i===blocks.length-1)return;
-    if(b.text.split(/\s+/).length<=12&&!/[.!:;,]$/.test(b.text)){b.type='h';b.level=i===0?1:2;guessed=true}});
-  return{blocks,paras:blocks.filter(b=>b.type==='p'),heads:blocks.filter(b=>b.type==='h'),images,links,guessed};
-}
-const words=t=>t.match(/[A-Za-z0-9]+(?:['\-][A-Za-z0-9]+)*/g)||[];
-function sentences(p){
-  const s=p.replace(/\s+/g,' ').replace(/(\d)\.(\d)/g,'$1⁣$2').replace(/\b(e\.g|i\.e|etc|vs|Mr|Mrs|Dr|St|approx)\./gi,x=>x.replace(/\./g,'⁣'));
-  return(s.match(/[^.!?]+(?:[.!?]+["')\]]*|$)/g)||[]).map(x=>x.replace(/⁣/g,'.').trim()).filter(x=>/[A-Za-z0-9]/.test(x));
-}
-function syl(w){w=w.toLowerCase().replace(/[^a-z]/g,'');if(!w)return 0;if(w.length<=3)return 1;w=w.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/,'').replace(/^y/,'');const m=w.match(/[aeiouy]{1,2}/g);return m?m.length:1}
-function count(text,ph){if(!ph)return 0;return(text.match(new RegExp('\\b'+rx(ph).replace(/\s+/g,'\\s+')+'\\b','gi'))||[]).length}
-
-/* ---------- analysis ---------- */
-const CATS={meta:'Meta & URL',kw:'Keywords',read:'Readability',struct:'Structure',orig:'Originality',gram:'Grammar'};
-const WEIGHT={meta:20,kw:20,read:15,struct:20,orig:10,gram:15};
-let R=null,TAB='overview';
-
-function analyze(v){
-  const kw=norm(v.kw.trim().toLowerCase()),kw2=v.kw2.split(',').map(s=>norm(s.trim().toLowerCase())).filter(Boolean);
-  const title=norm(v.title.trim()),desc=norm(v.desc.trim()),tl=title.toLowerCase(),dl=desc.toLowerCase();
-  let slug=v.slug.trim().replace(/[?#].*$/,'');if(slug.includes('/'))slug=slug.replace(/\/+$/,'').split('/').pop()||'';
-  const domain=v.domain.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/^www\./,'').replace(/\/.*$/,'');
-  const P=parse(v.content);
-  const body=P.paras.map(p=>p.text).join('\n'),all=P.heads.map(x=>x.text).join('\n')+'\n'+body;
-  const W=words(all),BW=words(body),N=W.length,bw=BW.length||1;
-  const S=[];P.paras.forEach((p,pi)=>sentences(p.text).forEach(t=>S.push({t,w:words(t).length,pi})));const sc=S.length||1;
-  const C=[];const add=(cat,st,t,d)=>C.push({cat,st,t,d:d||''});
-
-  /* META */
-  let tS=0,dS=0;
-  if(!title)add('meta','bad','Meta title is missing','Write a 50–60 character title with your keyword near the start.');
-  else{
-    const w=px(title,TF);
-    if(w>TMAX)add('meta','warn','Title will be cut off in Google',`${title.length} characters, ${Math.round(w)}px. Google shows about ${TMAX}px. Cut it to about 55–60 characters.`);
-    else if(title.length<30){add('meta','warn','Title is too short',`${title.length} characters. Use 50–60 to fill the space.`);tS+=10}
-    else{add('meta','good','Title length is good',`${title.length} characters, ${Math.round(w)}px`);tS+=25}
-    if(kw){const i=tl.indexOf(kw);
-      if(i<0)add('meta','bad','Keyword is not in the title','Use the exact focus keyword, ideally at the start.');
-      else if(i<=title.length*0.4){add('meta','good','Keyword is near the start of the title');tS+=35}
-      else{add('meta','warn','Keyword is late in the title','Move it toward the front.');tS+=22}}
-    if(/\d/.test(title)){tS+=10;add('meta','good','Title has a number or year')}else add('meta','info','No number in the title','A number or year ("7 Ways", "2026") often gets more clicks.');
-    const pw=POWER.filter(p=>new RegExp('\\b'+rx(p)+'\\b','i').test(title));
-    if(pw.length){tS+=15;add('meta','good','Title has a benefit word',pw.join(', '))}else add('meta','warn','Title has no benefit word','Add one, e.g. best, easy, complete, tested, free.');
-    const caps=(title.match(/\b[A-Z]{4,}\b/g)||[]).filter(x=>!/^(HTML|FAQ|JSON|HTTP|HTTPS|NASA|USA|UAE)$/.test(x));
-    if(caps.length>1)add('meta','warn','Too many ALL-CAPS words',caps.join(', '));else tS+=5;
-    const tw=words(tl).filter(x=>!STOP.has(x)),dup=[...new Set(tw.filter((x,i)=>tw.indexOf(x)!==i))];
-    if(dup.length)add('meta','warn','Repeated words in title',dup.join(', ')+'. This can look like keyword stuffing.');else tS+=10;
-  }
-  if(!desc)add('meta','bad','Meta description is missing','Write 120–160 characters with the keyword and a reason to click.');
-  else{
-    const w=px(desc,DF);
-    if(desc.length<70)add('meta','bad','Description is too short',`${desc.length} characters. Google will probably write its own.`);
-    else if(desc.length<120){add('meta','warn','Description is a bit short',`${desc.length} characters. Aim for 120–160.`);dS+=15}
-    else if(w>DMAX){add('meta','warn','Description will be cut off',`${desc.length} characters, ${Math.round(w)}px. Keep it under about 155 characters.`);dS+=15}
-    else{add('meta','good','Description length is good',`${desc.length} characters`);dS+=30}
-    if(kw){if(dl.includes(kw)){dS+=30;add('meta','good','Keyword is in the description','Google bolds it in results.')}else add('meta','bad','Keyword is not in the description')}
-    const ct=CTA.filter(c=>new RegExp('\\b'+c+'\\b','i').test(desc));
-    if(ct.length){dS+=20;add('meta','good','Description has a call to action',ct.join(', '))}else add('meta','warn','No call to action','Start or end with a verb: Learn, Compare, Find, Get, Try.');
-    if(/\d/.test(desc))dS+=10;
-    if(desc.includes('"'))add('meta','warn','Double quotes in description','Google can cut the text at a double quote. Use single quotes.');else dS+=5;
-    if(title&&dl===tl)add('meta','bad','Description is the same as the title');else dS+=5;
-  }
-  if(slug){
-    const s=slug.toLowerCase(),sw=s.split('-').filter(Boolean);
-    if(slug!==s||/[^a-z0-9\-]/.test(s))add('meta','warn','Slug format','Use lowercase words joined by hyphens, with no spaces, underscores or symbols.');else add('meta','good','Slug format is clean');
-    if(sw.length>6||s.length>60)add('meta','warn','Slug is long',`${sw.length} words. 3–5 words is ideal.`);
-    const st=sw.filter(x=>STOP.has(x));if(st.length)add('meta','warn','Stop words in slug','Remove: '+st.join(', '));
-    if(/(^|-)(19|20)\d\d(-|$)/.test(s))add('meta','warn','Year in slug','A year in the URL dates the page. Put the year in the title instead.');
-    if(kw){const k=words(kw).filter(x=>!STOP.has(x)),miss=k.filter(x=>!sw.includes(x));if(!miss.length)add('meta','good','Keyword is in the slug');else add('meta','bad','Keyword is not fully in the slug','Missing: '+miss.join(', '))}
-  }else add('meta','info','No slug entered','Add the slug to check it.');
-
-  /* KEYWORDS */
-  const kc=kw?count(all,kw):0,kn=kw?words(kw).length:1,dens=N?kc*kn/N*100:0,lo=Math.max(1,Math.round(N*0.005)),hi=Math.max(2,Math.round(N*0.02));
-  if(!kw)add('kw','bad','No focus keyword entered','Enter the main search term you want this post to rank for.');
-  else{
-    if(dens>3)add('kw','bad','Keyword stuffing',`"${h(kw)}" is used ${kc} times (${dens.toFixed(2)}%). Google can treat this as spam. Cut it to ${lo}–${hi} uses and use synonyms instead.`);
-    else if(dens>2.5)add('kw','warn','Keyword density is high',`${kc} uses (${dens.toFixed(2)}%). Aim for ${lo}–${hi}.`);
-    else if(!kc)add('kw','bad','Keyword is not in the article');
-    else if(kc<lo)add('kw','warn','Keyword is used too little',`${kc} uses (${dens.toFixed(2)}%). Aim for ${lo}–${hi} in ${N} words.`);
-    else add('kw','good','Keyword density is good',`${kc} uses (${dens.toFixed(2)}%). Target: ${lo}–${hi}.`);
-    if(count(BW.slice(0,100).join(' '),kw))add('kw','good','Keyword is in the first 100 words');else add('kw','bad','Keyword is not in the first 100 words','Mention it in the opening paragraph.');
-    const h1=P.heads.filter(x=>x.level===1);if(h1.length){if(h1.some(x=>count(x.text,kw)))add('kw','good','Keyword is in the H1');else add('kw','warn','Keyword is not in the H1')}
-    const sub=P.heads.filter(x=>x.level>1),sk=sub.filter(x=>count(x.text,kw));
-    if(sub.length){if(!sk.length)add('kw','warn','Keyword is not in any subheading','Use it or a close variant in at least one H2.');
-      else if(sub.length>=3&&sk.length/sub.length>0.6)add('kw','warn','Keyword is in too many subheadings',`${sk.length} of ${sub.length}. Use natural variants instead.`);
-      else add('kw','good','Keyword is in a subheading',`${sk.length} of ${sub.length}`)}
-    if(P.images.length){if(P.images.some(i=>count(i.alt,kw)))add('kw','good','Keyword is in an image alt text');else add('kw','info','Keyword is not in any image alt text','Add it to one alt text where it fits naturally.')}
-  }
-  kw2.forEach(k=>{const c=count(all,k),d=N?c*words(k).length/N*100:0;
-    if(!c)add('kw','warn',`Secondary keyword missing: "${h(k)}"`);else if(d>2)add('kw','warn',`Secondary keyword overused: "${h(k)}"`,`${c} times (${d.toFixed(1)}%)`);else add('kw','good',`Secondary keyword used: "${h(k)}"`,`${c} times`)});
-  const tk=W.map(x=>x.toLowerCase()),gr={};
-  for(const n of[2,3])for(let i=0;i+n<=tk.length;i++){const g=tk.slice(i,i+n);if(STOP.has(g[0])||STOP.has(g[n-1])||g.every(x=>/^\d+$/.test(x)))continue;const k=g.join(' ');gr[k]=(gr[k]||0)+1}
-  const phrases=Object.entries(gr).filter(e=>e[1]>=3).map(([p,c])=>({p,c,d:N?c*p.split(' ').length/N*100:0})).sort((a,b)=>b.d-a.d).slice(0,12);
-  phrases.forEach(o=>{if(o.p!==kw&&o.d>2.5)add('kw','warn',`"${h(o.p)}" is repeated too often`,`${o.c} times (${o.d.toFixed(1)}%). This reads like stuffing. Vary the wording.`)});
-
-  /* READABILITY */
-  const sy=BW.reduce((a,x)=>a+syl(x),0),flesch=206.835-1.015*(bw/sc)-84.6*(sy/bw),grade=0.39*(bw/sc)+11.8*(sy/bw)-15.59;
-  if(flesch>=60)add('read','good','Easy to read',`Flesch score ${flesch.toFixed(0)}, about grade ${grade.toFixed(1)}`);
-  else add('read',flesch>=50?'warn':'bad',flesch>=50?'Fairly hard to read':'Hard to read',`Flesch ${flesch.toFixed(0)}, grade ${grade.toFixed(1)}. Web readers do best at 60+. Use shorter sentences and simpler words.`);
-  const avg=bw/sc;if(avg<=20)add('read','good','Average sentence length is good',avg.toFixed(1)+' words');else add('read',avg<=25?'warn':'bad','Sentences are long on average',avg.toFixed(1)+' words. Aim for 15–20.');
-  const longS=S.filter(s=>s.w>25),lp=longS.length/sc*100;
-  if(lp<=20)add('read','good','Few long sentences',`${longS.length} over 25 words (${lp.toFixed(0)}%)`);else add('read','warn','Too many long sentences',`${longS.length} over 25 words (${lp.toFixed(0)}%). Keep this under 20%. See Highlights.`);
-  const pas=S.filter(s=>PASSIVE.test(s.t)),pp=pas.length/sc*100;
-  if(pp<=10)add('read','good','Little passive voice',pp.toFixed(0)+'%');else add('read',pp<=15?'warn':'bad','Too much passive voice',`${pas.length} sentences (${pp.toFixed(0)}%). Keep it under 10%. "We tested it" reads better than "It was tested".`);
-  const lpar=P.paras.filter(p=>words(p.text).length>120);if(lpar.length)add('read','warn','Long paragraphs',`${lpar.length} paragraphs over 120 words. Split into 2–4 sentences for mobile.`);else add('read','good','Paragraph length is good');
-  let same=0;const fw=i=>(words(S[i].t)[0]||'').toLowerCase();for(let i=2;i<S.length;i++)if(fw(i)&&fw(i)===fw(i-1)&&fw(i)===fw(i-2))same++;
-  if(same)add('read','warn','Repetitive sentence openings',`${same} times, three sentences in a row start with the same word.`);
-  const wd=[];WORDY.forEach(([p,r])=>{const c=count(body,p);if(c)wd.push({p,r,c})});
-  if(wd.length)add('read',wd.length>5?'bad':'warn','Wordy or filler phrases',wd.map(o=>`<b>${h(o.p)}</b> → ${h(o.r)} (×${o.c})`).join('<br>'));else add('read','good','No filler phrases found');
-  const lens=S.map(s=>s.w),mean=lens.reduce((a,b)=>a+b,0)/(lens.length||1),sd=Math.sqrt(lens.reduce((a,b)=>a+(b-mean)**2,0)/(lens.length||1)),vary=mean?sd/mean:0;
-  if(S.length>=8){if(vary>=0.45)add('read','good','Good sentence rhythm','Sentence lengths are nicely varied.');else add('read','warn','Flat sentence rhythm',`Most sentences are a similar length (variety ${vary.toFixed(2)}). Mix short sentences with longer ones so it reads naturally.`)}
-
-  /* STRUCTURE */
-  if(N<300)add('struct','bad','Thin content',`${N} words. Posts under 300 words rarely rank.`);
-  else if(N<800)add('struct','warn','Article is short',`${N} words. Check how long the top 3 Google results are and cover the same subtopics.`);
-  else add('struct','good','Article length is good',N+' words');
-  if(P.guessed)add('struct','info','Headings were guessed','No heading markup was found, so short lines were treated as headings. Paste from Google Docs or WordPress to keep real headings.');
-  const h1s=P.heads.filter(x=>x.level===1);
-  if(h1s.length>1)add('struct','bad','More than one H1',`${h1s.length} found. Use one H1, then H2 and H3.`);else if(!h1s.length)add('struct','info','No H1 in the article','This is fine if WordPress prints the post title as the H1.');else add('struct','good','One H1');
-  const subs=P.heads.filter(x=>x.level>1);
-  if(N>300&&!subs.length)add('struct','bad','No subheadings','Break the text into H2 and H3 sections.');
-  else if(subs.length&&N/(subs.length+1)>350)add('struct','warn','Sections are too long',`About ${Math.round(N/(subs.length+1))} words per heading. Add a subheading every 200–300 words.`);
-  else if(subs.length)add('struct','good','Good number of subheadings',subs.length+' subheadings');
-  const skip=[];for(let i=1;i<P.heads.length;i++)if(P.heads[i].level>P.heads[i-1].level+1)skip.push(`H${P.heads[i-1].level} → H${P.heads[i].level}: "${h(P.heads[i].text.slice(0,50))}"`);
-  if(skip.length)add('struct','warn','Heading levels are skipped',skip.join('<br>'));
-  const ht=P.heads.map(x=>x.text.toLowerCase()),hd=[...new Set(ht.filter((x,i)=>ht.indexOf(x)!==i))];if(hd.length)add('struct','warn','Duplicate headings',hd.map(h).join(', '));
-  if(N>600&&!P.paras.some(p=>p.list))add('struct','warn','No lists','Bulleted or numbered lists help readers skim and can win featured snippets.');
-  const qh=P.heads.filter(x=>/\?$/.test(x.text)||/^(what|how|why|when|which|who|can|is|are|does|do|should)\b/i.test(x.text));
-  if(qh.length)add('struct','good','Question headings / FAQ',qh.length+' found. Good for "People also ask".');else add('struct','warn','No question headings or FAQ','Add an FAQ section using questions from Google\'s "People also ask" box.');
-  const isInt=l=>/^(\/|#|\.)/.test(l.href)||!/^[a-z]+:/i.test(l.href)||(domain&&l.href.toLowerCase().replace(/^https?:\/\/(www\.)?/,'').startsWith(domain));
-  const intL=P.links.filter(isInt),extL=P.links.filter(l=>!isInt(l)&&/^https?:/i.test(l.href));
-  if(!intL.length)add('struct','warn','No internal links','Link to 2–5 related posts on your site.'+(domain?'':' Enter your domain so they can be detected.'));else add('struct','good','Internal links',intL.length+' found');
-  if(!extL.length)add('struct','warn','No external links','Cite 1–3 trusted sources such as studies or official sites.');else add('struct','good','External links',extL.length+' found');
-  const weak=P.links.filter(l=>/^(click here|here|read more|this|link|this link)$/i.test(l.text.trim()));if(weak.length)add('struct','warn','Weak link text',`${weak.length} links say "click here" or similar. Use descriptive words.`);
-  if(P.images.length){const na=P.images.filter(i=>!i.alt);if(na.length)add('struct','bad','Images missing alt text',`${na.length} of ${P.images.length}`);else add('struct','good','All images have alt text',P.images.length+' images')}
-  else if(N>500)add('struct','warn','No images found','Add images, screenshots or charts. Ignore this if you add them in WordPress.');
-  const exp=(body.match(/\b(I|we) (tested|tried|used|found|noticed|bought|reviewed|compared|measured|spent|visited|asked)\b|\bin my experience\b|\bour (team|test|tests|testing)\b|\bI've\b|\bwe've\b|\bhands-on\b/gi)||[]).length;
-  if(exp>=2)add('struct','good','Shows first-hand experience (E-E-A-T)',exp+' signals found');else add('struct','warn','Little first-hand experience (E-E-A-T)','Add what you tested, saw or learned yourself, with photos, results or examples.');
-  const nums=(body.match(/\b\d[\d,.]*\s?(%|percent|hours?|days?|minutes?|years?|months?|kg|km|mph|usd|dollars?)?\b/gi)||[]).length+(body.match(/[$₹€£]\s?\d/g)||[]).length;
-  if(N>400){if(nums>=3)add('struct','good','Uses facts and numbers',nums+' found');else add('struct','warn','Few facts or numbers','Add specific prices, stats, dates or measurements. Vague claims don\'t build trust.')}
-
-  /* ORIGINALITY */
-  const seen={},dupS=[];S.forEach(s=>{const k=s.t.toLowerCase().replace(/[^a-z0-9 ]/g,'').trim();if(words(k).length<6)return;if(seen[k]){if(seen[k]===1)dupS.push(s.t);seen[k]++}else seen[k]=1});
-  if(dupS.length)add('orig','bad','Repeated sentences in your article',dupS.map(x=>'"'+h(x.slice(0,120))+'"').join('<br>'));else add('orig','good','No repeated sentences inside the article');
-  const pk={},dupP=[];P.paras.forEach(p=>{const k=p.text.toLowerCase();if(words(k).length>=15){if(pk[k])dupP.push(p.text);pk[k]=1}});
-  if(dupP.length)add('orig','bad','Repeated paragraphs',dupP.length+' paragraphs appear twice.');
-  const cand=[...new Set(S.filter(s=>s.w>=12&&!/^\d/.test(s.t)).map(s=>s.t))].map(t=>{const w=words(t),u=w.filter(x=>!STOP.has(x.toLowerCase())).length;return{t,sc:u+(/\d/.test(t)?0:2)}}).sort((a,b)=>b.sc-a.sc).slice(0,10)
-    .map(o=>{const w=o.t.replace(/["“”]/g,'').split(/\s+/).slice(0,28).join(' ').replace(/[.!?]+$/,'');return{t:w,g:'https://www.google.com/search?q='+encodeURIComponent('"'+w+'"'),b:'https://www.bing.com/search?q='+encodeURIComponent('"'+w+'"')}});
-  add('orig','info','Check online copies (free)',cand.length?`Open the ${cand.length} exact-match searches below. If Google shows the same sentence on another site, rewrite it.`:'Article is too short to pick test sentences.');
-
-  /* GRAMMAR */
-  const G=[];const snip=(t,i,l)=>'…'+h(t.slice(Math.max(0,i-30),i+l+30))+'…';
-  P.blocks.forEach(b=>{const t=b.text;let m;
-    const r1=/\b(\w+)\s+\1\b/gi;while((m=r1.exec(t)))if(!/^(that|had|very|bye|ha|no|so)$/i.test(m[1])&&!/^\d+$/.test(m[1]))G.push(['Repeated word',`"${h(m[0])}"`,snip(t,m.index,m[0].length)]);
-    const r2=/\b[A-Za-z]+\b/g;while((m=r2.exec(t))){const lw=m[0].toLowerCase();if(TYPO[lw])G.push(['Spelling',`"${h(m[0])}" → "${h(TYPO[lw])}"`,snip(t,m.index,m[0].length)])}
-    CONF.forEach(([re,fix])=>{re.lastIndex=0;while((m=re.exec(t)))G.push(['Wrong word',`"${h(m[0])}" → "${h(fix)}"`,snip(t,m.index,m[0].length)])});
-    const r3=/\s+[,.;:!?](?!\d)/g;while((m=r3.exec(t)))G.push(['Space before punctuation',`"${h(m[0])}"`,snip(t,m.index,m[0].length)]);
-    const r4=/[a-z][,;][A-Za-z]|[a-z]{2}\.[A-Z][a-z]/g;while((m=r4.exec(t)))G.push(['Missing space after punctuation',`"${h(m[0])}"`,snip(t,m.index,m[0].length)]);
-    const r5=/\ban\s+([bcdfgjklmnpqrstvwxz]\w+)/gi;while((m=r5.exec(t)))if(!/^(hour|honest|honor|honour|heir|herb)/i.test(m[1]))G.push(['"an" before a consonant sound',`"${h(m[0])}"`,snip(t,m.index,m[0].length)]);
-    const r6=/\ba\s+([aeio]\w+)/gi;while((m=r6.exec(t)))if(!/^(one|once|eu|uni|use|usu|euro)/i.test(m[1]))G.push(['"a" before a vowel sound',`"${h(m[0])}" → "an ${h(m[1])}"`,snip(t,m.index,m[0].length)]);
-    if(/!{2,}|\?{2,}/.test(t))G.push(['Repeated punctuation','!! or ??',h(t.slice(0,80))]);
-    if(b.type==='p'&&!b.list)sentences(t).forEach(s=>{if(/^[a-z]/.test(s)&&!/^(e\.g|i\.e|iphone|ipad|ebay)/i.test(s))G.push(['Sentence starts lowercase',h(s.slice(0,40)),''])});
-  });
-  if(G.length)add('gram',G.length>5?'bad':'warn',`${G.length} grammar or spelling issues`,'See the table below. Click "Run full grammar check" for a deeper check.');else add('gram','good','No basic grammar or spelling issues found','This covers common mistakes only. Click "Run full grammar check" for a deeper check.');
-  const ex=(body.match(/!/g)||[]).length;if(ex>3)add('gram','warn','Too many exclamation marks',ex+' found. Use one or two at most.');
-
-  /* SCORES */
-  const pt={good:1,warn:0.5,bad:0},cs={};
-  Object.keys(CATS).forEach(c=>{const L=C.filter(x=>x.cat===c&&x.st!=='info');cs[c]=L.length?Math.round(L.reduce((a,x)=>a+pt[x.st],0)/L.length*100):100});
-  const total=Math.round(Object.keys(CATS).reduce((a,c)=>a+cs[c]*WEIGHT[c],0)/100);
-  return{C,cs,total,tS:title?tS:0,dS:desc?dS:0,title,desc,slug,domain,kw,kw2,P,S,N,flesch,grade,avg,kc,dens,phrases,cand,G,wd,longS,pas,minutes:Math.max(1,Math.round(N/230))};
-}
-
-/* ---------- render ---------- */
-const col=s=>s>=80?'var(--good)':s>=55?'var(--warn)':'var(--bad)';
-const strength=s=>s>=75?['Strong','var(--good)']:s>=50?['OK','var(--warn)']:['Weak','var(--bad)'];
-const chk=x=>`<div class="chk ${x.st}"><span class="dot"></span><div><b>${x.t}</b>${x.d?`<div class="d">${x.d}</div>`:''}</div></div>`;
-const list=cat=>{const o={bad:0,warn:1,info:2,good:3};return R.C.filter(x=>x.cat===cat).sort((a,b)=>o[a.st]-o[b.st]).map(chk).join('')};
-const TABS=[['overview','Overview'],['meta','Meta & URL'],['kw','Keywords'],['read','Readability'],['struct','Structure'],['orig','Originality'],['gram','Grammar'],['hl','Highlights']];
-function render(){
-  $('tabs').innerHTML=TABS.map(([k,l])=>{const n=R&&CATS[k]?R.C.filter(x=>x.cat===k&&x.st==='bad').length:0;return`<button class="tab${TAB===k?' on':''}" data-t="${k}">${l}${n?`<i>${n}</i>`:''}</button>`}).join('');
-  if(!R){$('out').innerHTML='<div class="empty">Paste your article and click <b>Check content</b>.</div>';return}
-  const o=$('out');
-  if(TAB==='overview'){
-    const top=R.C.filter(x=>x.st==='bad').concat(R.C.filter(x=>x.st==='warn')).slice(0,10);
-    o.innerHTML=`<div class="score"><div><div class="big" style="color:${col(R.total)}">${R.total}<small>/100</small></div><div class="muted">Overall SEO score</div></div>
-    <div class="bars">${Object.keys(CATS).map(c=>`<div class="bar"><span>${CATS[c]}</span><div class="t"><div class="f" style="width:${R.cs[c]}%;background:${col(R.cs[c])}"></div></div><b>${R.cs[c]}</b></div>`).join('')}</div></div>
-    <div class="stats">${[[R.N,'Words'],[R.minutes+' min','Reading time'],[R.flesch.toFixed(0),'Flesch score'],[R.grade.toFixed(1),'Grade level'],[R.kc,'Keyword uses'],[R.dens.toFixed(2)+'%','Keyword density'],[R.P.heads.length,'Headings'],[R.P.links.length,'Links']].map(([b,s])=>`<div class="stat"><b>${b}</b><span>${s}</span></div>`).join('')}</div>
-    <h3>Fix these first</h3>${top.length?top.map(chk).join(''):'<div class="chk good"><span class="dot"></span><b>No problems found. Ready to publish.</b></div>'}`;
-  }else if(TAB==='meta'){
-    const[ts,tc]=strength(R.tS),[dsl,dc]=strength(R.dS);
-    const crumb=(R.domain||'example.com')+(R.slug?' › '+R.slug:'');
-    o.innerHTML=`<h3 style="margin-top:0">Google preview</h3><div class="serp"><div class="u">${h(crumb)}</div><div class="ti">${h(fit(R.title||'(no title)',TF,TMAX))}</div><div class="de">${h(fit(R.desc||'(no description: Google will pick text from the page)',DF,DMAX))}</div></div>
-    <p>Meta title: <span class="pill" style="background:${tc}">${ts}</span> &nbsp; Meta description: <span class="pill" style="background:${dc}">${dsl}</span></p>${list('meta')}`;
-  }else if(TAB==='kw'){
-    o.innerHTML=list('kw')+(R.phrases.length?`<h3>Most repeated phrases</h3><table><tr><th>Phrase</th><th>Times</th><th>Density</th></tr>${R.phrases.map(p=>`<tr><td>${h(p.p)}</td><td>${p.c}</td><td>${p.d.toFixed(1)}%</td></tr>`).join('')}</table><p class="muted">Anything over 2.5% that isn't your focus keyword can look like stuffing.</p>`:'');
-  }else if(TAB==='read'){
-    o.innerHTML=list('read')+(R.longS.length?`<h3>Long sentences (${R.longS.length})</h3>${R.longS.slice(0,15).map(s=>`<div class="chk warn"><span class="dot"></span><div class="d">${s.w} words: ${h(s.t)}</div></div>`).join('')}`:'')+(R.pas.length?`<h3>Passive voice (${R.pas.length})</h3>${R.pas.slice(0,15).map(s=>`<div class="chk info"><span class="dot"></span><div class="d">${h(s.t)}</div></div>`).join('')}`:'');
-  }else if(TAB==='struct'){
-    o.innerHTML=list('struct')+(R.P.heads.length?`<h3>Heading outline</h3>${R.P.heads.map(x=>`<div style="padding-left:${(x.level-1)*18}px;font-size:14px"><span class="muted">H${x.level}</span> ${h(x.text)}</div>`).join('')}`:'');
-  }else if(TAB==='orig'){
-    o.innerHTML=list('orig')+(R.cand.length?`<h3>Exact-match checks</h3><p class="muted">Each link searches one sentence word for word. If a result shows your sentence on another site, that part is copied or too generic, so rewrite it.</p><div class="links">${R.cand.map((c,i)=>`<a href="${c.g}" target="_blank" rel="noopener">${i+1}. Google: "${h(c.t)}"</a>`).join('')}</div><p class="muted">Bing versions: ${R.cand.map((c,i)=>`<a href="${c.b}" target="_blank" rel="noopener">${i+1}</a>`).join(' · ')}</p>`:'');
-  }else if(TAB==='gram'){
-    let lt=`<h3>Full grammar check (LanguageTool)</h3><p class="muted">Checks spelling, grammar, punctuation and style. Your article text is sent to LanguageTool's free public service.</p><button id="ltbtn"${LT&&LT.state==='loading'?' disabled':''}>${LT&&LT.state==='loading'?'Checking...':'Run full grammar check'}</button>`;
-    if(LT&&LT.state==='error')lt+=`<div class="chk bad" style="margin-top:10px"><span class="dot"></span><div><b>Could not check</b><div class="d">${h(LT.msg)} <a href="https://languagetool.org/" target="_blank" rel="noopener" style="color:var(--accent)">Open LanguageTool</a></div></div></div>`;
-    if(LT&&LT.state==='done'){lt+=LT.matches.length?`<p><b>${LT.matches.length} issues found</b></p><table><tr><th>Issue</th><th>Where</th><th>Suggestion</th></tr>${LT.matches.slice(0,200).map(m=>{const c=m.context,t=c.text;return`<tr><td>${h(m.message)}<div class="muted">${h(m.rule&&m.rule.category?m.rule.category.name:'')}</div></td><td class="muted">${h(t.slice(0,c.offset))}<mark class="wd">${h(t.slice(c.offset,c.offset+c.length))}</mark>${h(t.slice(c.offset+c.length))}</td><td><b>${h((m.replacements||[]).slice(0,3).map(r=>r.value).join(' / ')||'(no suggestion)')}</b></td></tr>`}).join('')}</table>`:'<div class="chk good" style="margin-top:10px"><span class="dot"></span><b>LanguageTool found no issues.</b></div>'}
-    o.innerHTML=lt+'<h3>Quick checks</h3>'+list('gram')+(R.G.length?`<h3>Issues</h3><table><tr><th>Type</th><th>Problem</th><th>Where</th></tr>${R.G.slice(0,80).map(g=>`<tr><td>${g[0]}</td><td>${g[1]}</td><td class="muted">${g[2]}</td></tr>`).join('')}</table>`:'');
-  }else if(TAB==='hl'){
-    const terms=[R.kw,...R.kw2].filter(Boolean),wdp=R.wd.map(x=>x.p),allT=[...terms,...wdp].sort((a,b)=>b.length-a.length);
-    const re=allT.length?new RegExp('\\b('+allT.map(t=>rx(h(t)).replace(/\s+/g,'\\s+')).join('|')+')\\b','gi'):null;
-    const mark=s=>re?s.replace(re,m=>`<mark class="${terms.includes(m.toLowerCase().replace(/\s+/g,' '))?'kw':'wd'}">${m}</mark>`):s;
-    o.innerHTML=`<div class="legend"><span><mark class="kw">keyword</mark></span><span><mark class="wd">wordy phrase</mark></span><span class="long">long sentence</span><span class="pass">passive voice</span></div><div class="hl">${R.P.blocks.map(b=>b.type==='h'?`<div class="hd">H${b.level}: ${mark(h(b.text))}</div>`:`<p>${b.list?'• ':''}${sentences(b.text).map(s=>{const c=[words(s).length>25?'long':'',PASSIVE.test(s)?'pass':''].filter(Boolean).join(' ');const t=mark(h(s));return c?`<span class="${c}">${t}</span>`:t}).join(' ')}</p>`).join('')}</div>`;
-  }else o.innerHTML=list(TAB);
-}
-$('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b){TAB=b.dataset.t;render()}});
-let LT=null,lastContent='';
-async function runLT(){
-  if(!R||(LT&&LT.state==='loading'))return;LT={state:'loading'};render();
-  const parts=R.P.blocks.map(b=>b.text),chunks=[];let cur='';
-  parts.forEach(p=>{if(cur&&(cur.length+p.length)>15000){chunks.push(cur);cur=''}cur+=(cur?'\n\n':'')+p});if(cur)chunks.push(cur);
-  const matches=[];
-  try{
-    for(let i=0;i<chunks.length;i++){
-      if(i)await new Promise(r=>setTimeout(r,3500));
-      const r=await fetch('https://api.languagetool.org/v2/check',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({text:chunks[i],language:'en-US'})});
-      if(!r.ok)throw new Error(r.status===429?'The free limit was reached. Wait one minute and try again.':'LanguageTool returned error '+r.status+'. Try again shortly.');
-      matches.push(...(await r.json()).matches);
-    }
-    LT={state:'done',matches};
-  }catch(e){LT={state:'error',msg:/fetch|network|load/i.test(e.message||'')?'This page could not connect to LanguageTool. Copy your article and paste it at languagetool.org instead (free).':e.message}}
-  render();
-}
-$('out').addEventListener('click',e=>{if(e.target.id==='ltbtn')runLT()});
-
-function run(){
-  const v={};FIELDS.forEach(f=>v[f]=$(f).value);
-  try{localStorage.setItem('seo-checker',JSON.stringify(v))}catch(e){}
-  $('tc').textContent=v.title.length+' chars · '+Math.round(px(v.title,TF))+' / '+TMAX+' px';
-  $('dc').textContent=v.desc.length+' chars · '+Math.round(px(v.desc,DF))+' / '+DMAX+' px';
-  $('cc').textContent=words(v.content).length+' words';
-  if(v.content!==lastContent){LT=null;lastContent=v.content}
-  R=v.content.trim()?analyze(v):null;render();
-}
-let tmr;FIELDS.forEach(f=>$(f).addEventListener('input',()=>{clearTimeout(tmr);tmr=setTimeout(run,600)}));
-$('go').onclick=run;
-let clearArm=0;$('clear').onclick=()=>{const b=$('clear');if(Date.now()-clearArm<4000){FIELDS.forEach(f=>$(f).value='');clearArm=0;b.textContent='Clear all';run()}else{clearArm=Date.now();b.textContent='Click again to clear';setTimeout(()=>{if(Date.now()-clearArm>=3900)b.textContent='Clear all'},4000)}};
-try{const s=JSON.parse(localStorage.getItem('seo-checker')||'null');if(s)FIELDS.forEach(f=>{if(s[f])$(f).value=s[f]})}catch(e){}
-run();
-</script>
+<script src="js/core.js"></script>
+<script src="js/net.js"></script>
+<script src="js/checks.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
